@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Invoice Generator</h1>
+        </header>
+        
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="company-info">
+                    <i class="fas fa-building"></i> Company Information
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <div class="dropdown" id="company-info-dropdown">
+                    <div class="dropdown-content">
+                        <div class="logo-upload-section">
+                            <h3>Upload Logo</h3>
+                            <div class="logo-preview">
+                                <img id="logo-preview" src="" alt="Logo Preview">
+                            </div>
+                            <input type="file" id="logo-upload" accept="image/*">
+                            <button id="upload-logo-btn">Upload Logo</button>
+                        </div>
+                        <div class="company-details">
+                            <div class="form-group">
+                                <label for="company-name">Company Name</label>
+                                <input type="text" id="company-name" placeholder="Enter company name">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-address">Company Address</label>
+                                <textarea id="company-address" placeholder="Enter company address"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-phone">Phone Number</label>
+                                <input type="text" id="company-phone" placeholder="Enter phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-email">Email</label>
+                                <input type="email" id="company-email" placeholder="Enter email">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-gst">GST Number</label>
+                                <input type="text" id="company-gst" placeholder="Enter GST number">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab" data-tab="client-info">
+                    <i class="fas fa-user"></i> Client Information
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <div class="dropdown" id="client-info-dropdown">
+                    <div class="dropdown-content">
+                        <div class="form-group">
+                            <label for="client-name">Client Name</label>
+                            <input type="text" id="client-name" placeholder="Enter client name">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-address">Client Address</label>
+                            <textarea id="client-address" placeholder="Enter client address"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="client-phone">Phone Number</label>
+                            <input type="text" id="client-phone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-email">Email</label>
+                            <input type="email" id="client-email" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-gst">GST Number</label>
+                            <input type="text" id="client-gst" placeholder="Enter GST number">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab" data-tab="invoice-details">
+                    <i class="fas fa-file-invoice"></i> Invoice Details
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <div class="dropdown" id="invoice-details-dropdown">
+                    <div class="dropdown-content">
+                        <div class="form-group">
+                            <label for="invoice-number">Invoice Number</label>
+                            <input type="text" id="invoice-number" placeholder="Enter invoice number">
+                        </div>
+                        <div class="form-group">
+                            <label for="invoice-date">Invoice Date</label>
+                            <input type="date" id="invoice-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="due-date">Due Date</label>
+                            <input type="date" id="due-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Currency</label>
+                            <select id="currency">
+                                <option value="₹" selected>Indian Rupee (₹)</option>
+                                <option value="$">US Dollar ($)</option>
+                                <option value="€">Euro (€)</option>
+                                <option value="£">British Pound (£)</option>
+                                <option value="¥">Japanese Yen (¥)</option>
+                                <option value="₩">Korean Won (₩)</option>
+                                <option value="₽">Russian Ruble (₽)</option>
+                                <option value="₿">Bitcoin (₿)</option>
+                                <option value="AED">UAE Dirham (AED)</option>
+                                <option value="A$">Australian Dollar (A$)</option>
+                                <option value="C$">Canadian Dollar (C$)</option>
+                                <option value="CHF">Swiss Franc (CHF)</option>
+                                <option value="¥">Chinese Yuan (¥)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab" data-tab="items">
+                    <i class="fas fa-shopping-cart"></i> Items
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <div class="dropdown" id="items-dropdown">
+                    <div class="dropdown-content">
+                        <div class="items-table-container">
+                            <table id="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>Description</th>
+                                        <th>Quantity</th>
+                                        <th>Rate</th>
+                                        <th>GST %</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items-body">
+                                    <!-- Items will be added here dynamically -->
+                                </tbody>
+                            </table>
+                            <button id="add-item-btn">Add Item</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab" data-tab="totals">
+                    <i class="fas fa-calculator"></i> Totals
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <div class="dropdown" id="totals-dropdown">
+                    <div class="dropdown-content">
+                        <div class="totals-section">
+                            <div class="form-group">
+                                <label for="subtotal">Subtotal</label>
+                                <input type="text" id="subtotal" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="discount-type">Discount Type</label>
+                                <select id="discount-type">
+                                    <option value="percentage">Percentage (%)</option>
+                                    <option value="fixed">Fixed Amount</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="discount-value">Discount Value</label>
+                                <input type="number" id="discount-value" placeholder="Enter discount value">
+                            </div>
+                            <div class="form-group">
+                                <label for="discount-amount">Discount Amount</label>
+                                <input type="text" id="discount-amount" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="tax-amount">GST Amount</label>
+                                <input type="text" id="tax-amount" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="total-amount">Total Amount</label>
+                                <input type="text" id="total-amount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab" data-tab="notes">
+                    <i class="fas fa-sticky-note"></i> Notes
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <div class="dropdown" id="notes-dropdown">
+                    <div class="dropdown-content">
+                        <div class="form-group">
+                            <label for="terms-conditions">Terms and Conditions</label>
+                            <textarea id="terms-conditions" placeholder="Enter terms and conditions"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment-info">Payment Information</label>
+                            <textarea id="payment-info" placeholder="Enter payment information"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="additional-notes">Additional Notes</label>
+                            <textarea id="additional-notes" placeholder="Enter additional notes"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="preview-invoice-btn">Preview Invoice</button>
+            <button id="generate-invoice-btn">Generate Invoice</button>
+            <button id="save-invoice-btn">Save Invoice</button>
+            <button id="print-invoice-btn">Print Invoice</button>
+        </div>
+        
+        <div id="invoice-preview" class="invoice-preview">
+            <!-- Invoice preview will be generated here -->
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
