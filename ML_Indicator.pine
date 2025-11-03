@@ -1,0 +1,97 @@
+//@version=5
+strategy("Advanced Machine Learning Strategy", shorttitle="Advanced ML Strategy", overlay=true)
+
+// --- User-configurable settings ---
+
+// Core Model Parameters
+length = input.int(20, minval=1, title="Lookback Period")
+src = input(close, title="Source")
+buyThreshold = input.float(0.7, title="Buy Threshold", step=0.1)
+sellThreshold = input.float(0.3, title="Sell Threshold", step=0.1)
+adxThreshold = input.int(25, title="ADX Trend Threshold")
+
+// Risk Management Parameters
+stopLossPercent = input.float(2.0, title="Stop Loss (%)", minval = 0.1) / 100
+takeProfitPercent = input.float(4.0, title="Take Profit (%)", minval = 0.1) / 100
+
+// --- Helper Functions ---
+normalize(series, len) =>
+    lowest = ta.lowest(series, len)
+    highest = ta.highest(series, len)
+    (series - lowest) / (highest - lowest + 1e-10)
+
+// --- Feature Engineering ---
+// 1. Price Action
+price_change = (close - close[1]) / close[1]
+high_low_range = high - low
+
+// 2. Volume
+volume_ema = ta.ema(volume, length)
+volume_change = (volume_ema - volume_ema[1]) / volume_ema[1]
+
+// 3. Technical Indicators
+rsi = ta.rsi(src, length)
+[macdLine, _, _] = ta.macd(src, 12, 26, 9)
+[upperBand, _, lowerBand] = ta.bb(src, length, 2)
+bb_pos = (src - lowerBand) / (upperBand - lowerBand + 1e-10)
+atr = ta.atr(length)
+[stochK, _] = ta.stoch(src, high, low, length)
+
+// 4. Market Regime Filter (ADX)
+[_, _, adx] = ta.dmi(length, length)
+isTrending = adx > adxThreshold
+
+// --- Feature Normalization ---
+norm_price_change = normalize(price_change, length)
+norm_high_low_range = normalize(high_low_range, length)
+norm_volume_change = normalize(volume_change, length)
+norm_rsi = rsi / 100
+norm_macd = normalize(macdLine, length)
+norm_bb_pos = normalize(bb_pos, length)
+norm_atr = normalize(atr, length)
+norm_stoch = stochK / 100
+
+// --- Adaptive Weighting based on Market Regime ---
+w_trend =     { "price": 0.20, "range": 0.05, "volume": 0.10, "rsi": 0.15, "macd": 0.25, "bb": 0.10, "atr": 0.05, "stoch": 0.10 }
+w_ranging =   { "price": 0.10, "range": 0.15, "volume": 0.05, "rsi": 0.25, "macd": 0.10, "bb": 0.20, "atr": 0.05, "stoch": 0.10 }
+w = isTrending ? w_trend : w_ranging
+
+// --- Machine Learning Model ---
+prediction =
+   w.price * norm_price_change +
+   w.range * norm_high_low_range +
+   w.volume * norm_volume_change +
+   w.rsi * norm_rsi +
+   w.macd * norm_macd +
+   w.bb * norm_bb_pos +
+   w.atr * norm_atr +
+   w.stoch * norm_stoch
+
+// --- Signal Generation ---
+buySignal = ta.crossover(prediction, buyThreshold)
+sellSignal = ta.crossunder(prediction, sellThreshold)
+
+// --- Strategy Execution ---
+if (buySignal)
+    strategy.entry("Buy", strategy.long)
+
+if (sellSignal)
+    strategy.entry("Sell", strategy.short)
+
+// --- Risk Management ---
+longStopPrice = strategy.position_avg_price * (1 - stopLossPercent)
+longTakeProfit = strategy.position_avg_price * (1 + takeProfitPercent)
+shortStopPrice = strategy.position_avg_price * (1 + stopLossPercent)
+shortTakeProfit = strategy.position_avg_price * (1 - takeProfitPercent)
+
+if strategy.position_size > 0
+    strategy.exit("Exit Buy", from_entry="Buy", stop=longStopPrice, limit=longTakeProfit)
+
+if strategy.position_size < 0
+    strategy.exit("Exit Sell", from_entry="Sell", stop=shortStopPrice, limit=shortTakeProfit)
+
+// --- Plotting for Visualization ---
+plot(prediction, title="ML Prediction Score", color=color.new(color.blue, 0), linewidth=2, display=display.data_window)
+plot(series=buySignal ? 1 : 0, title="Buy Signal", style=plot.style_histogram, color=color.green)
+plot(series=sellSignal ? 1 : 0, title="Sell Signal", style=plot.style_histogram, color=color.red)
+bgcolor(isTrending ? color.new(color.green, 90) : color.new(color.orange, 90), title="Market Regime")
